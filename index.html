@@ -73,6 +73,9 @@ nav.top{display:flex;gap:.25rem;align-items:center}
 .chip-btn:hover{color:#e2e8f0;border-color:rgba(148,163,184,.55)}
 .chip-btn.active{border-color:rgba(250,192,21,.55);background:var(--gold-dim);color:var(--gold)}
 .chip-btn:focus-visible{outline:2px solid var(--gold)}
+.search-input{border-radius:9999px;padding:5px 14px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;border:1px solid rgba(148,163,184,.3);background:rgba(15,24,35,.6);color:#e2e8f0;outline:0;min-width:170px;transition:border-color .25s,box-shadow .25s}
+.search-input::placeholder{color:#64748b}
+.search-input:focus{border-color:rgba(250,192,21,.55);box-shadow:0 0 0 3px rgba(250,192,21,.12)}
 
 .grid{display:grid;grid-template-columns:1fr;gap:1rem;transition:opacity .18s ease,transform .18s ease}
 .grid.swapping{opacity:0;transform:translateY(8px)}
@@ -179,6 +182,7 @@ footer .mono-label{line-height:1.9}
       <button class="chip-btn" data-f="base">Base hunting</button>
       <button class="chip-btn" data-f="economy">Economy</button>
       <button class="chip-btn" data-f="utility">Utility</button>
+      <input class="search-input" id="search" type="search" placeholder="Search by name…" aria-label="Search clients by name" />
     </div>
   </div>
   <div class="grid" id="grid"></div>
@@ -201,29 +205,29 @@ footer .mono-label{line-height:1.9}
   <dl id="dSpecs" style="margin-top:.5rem"></dl>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-top:1.5rem;gap:.75rem;flex-wrap:wrap">
     <span class="price" id="dPrice" style="font-size:18px">—</span>
-    <a class="btn btn-gold" id="dLink" href="#" target="_blank" rel="noopener">Mod page ↗</a>
+    <a class="btn btn-gold" id="dLink" href="#" target="_blank" rel="noopener" style="text-decoration:none">Download ↗</a>
   </div>
 </aside>
 
 <script>
 const products = [
-  {name:"Meteor Client",letter:"M",url:"https://modrinth.com/mod/meteor-client",cat:"utility",status:"free",price:"Free",kicker:"Client · Base platform",
+  {name:"Meteor Client",letter:"M",url:"https://meteorclient.com/",cat:"utility",status:"free",price:"Free",kicker:"Client · Base platform",
    desc:"The module system half the DonutSMP ecosystem runs on: 130+ modules, full HUD and a config layer. Required as the base for Glazed, Zinc and Bnana.",
    tags:["130+ modules","Required base","Open source"],ver:"Fabric 26.2",det:"Free",bypass:"Neutral base",
    features:[["Module system","130+ modules: combat, render, movement, world"],["Configurable HUD","Overlay and custom render plugins"],["Config layer","Saveable profiles and settings, addon API"],["Addon-ready","Unlocks Glazed, Zinc, Bnana, NuclearAddons"]]},
-  {name:"Glazed Addon",letter:"G",url:"https://donutfiles.com/",cat:"economy",status:"free",price:"Free",kicker:"Meteor addon · Economy",
+  {name:"Glazed Addon",letter:"G",url:"https://glazedclient.com/downloads/",cat:"economy",status:"free",price:"Free",kicker:"Meteor addon · Economy",
    desc:"DonutSMP-specific addon with 78 modules: AH Sniper, Storage Stealer and Crystal Macro among the community's most used.",
    tags:["AH Sniper","Storage Stealer","78 modules"],ver:"Fabric 26.2",det:"Free",bypass:"Requires OPSEC",
    features:[["AH Sniper","Automatic purchase of underpriced listings"],["Storage Stealer","Finds and empties containers in range"],["Crystal Macro","Automated crystal sequence"],["78 economy modules","Dupe-ready farms, heart swaps, server automations"]]},
-  {name:"Krypton Client",letter:"K",url:"https://donutclients.st/downloads",cat:"base",status:"paid",price:"€ 14.99",kicker:"Client · Standalone",
+  {name:"Krypton Client",letter:"K",url:"https://kryptonclient.org/",cat:"base",status:"paid",price:"€ 14.99",kicker:"Client · Standalone",
    desc:"The most used standalone for base hunting on DonutSMP: 63+ modules with Sus Chunk, Freelook, Suspicious ESP and RTP BaseFinder.",
    tags:["63+ modules","Sus Chunk","RTP BaseFinder"],ver:"Fabric 1.21.11",det:"Lifetime license",bypass:"Bypass active",
    features:[["Sus Chunk","High player-activity chunks highlighted in real time"],["Freelook","Camera orbit without moving the player"],["Suspicious ESP","Tracks suspicious entities and containers"],["RTP BaseFinder","Guided RTP scans toward inhabited areas"]]},
-  {name:"Zinc Client",letter:"Z",url:"https://donutclients.st/downloads",cat:"economy",status:"free",price:"Free",kicker:"Meteor addon · Bypass",
+  {name:"Zinc Client",letter:"Z",url:"https://zinc-client.lovable.app/",cat:"economy",status:"free",price:"Free",kicker:"Meteor addon · Bypass",
    desc:"The most installed Meteor addon in the DonutSMP community: 60+ modules built exclusively to evade the server anti-cheat.",
    tags:["60+ modules","Anti-cheat","#1 community"],ver:"Fabric 26.2",det:"Free",bypass:"Bypass active",
    features:[["Bypass suite","Packet-level rotations that slip past the checks"],["AutoSell","Automatic selling to the villager with guards"],["Auto-totem","Instant totem rearm"],["Packet guard","Filters packets that trigger flags"]]},
-  {name:"DoomsDay Client",letter:"D",url:"https://donutsmphack.com/",cat:"combat",status:"paid",price:"€ 24.99",kicker:"Client · All-rounder",
+  {name:"DoomsDay Client",letter:"D",url:"https://doomsdayclient.com/",cat:"combat",status:"paid",price:"€ 24.99",kicker:"Client · All-rounder",
    desc:"The do-everything client for DonutSMP and anarchy: SS bypass, crystal and classic PvP, base hunting and player tracking in one build.",
    tags:["SS bypass","Crystal PvP","Tracking"],ver:"Fabric 1.21.11",det:"3 or 12 months",bypass:"Bypass active",
    features:[["SS bypass","Evasion on sprint, velocity and reach checks"],["Crystal & classic PvP","Ready-made combat profiles for both styles"],["Base hunting","ESP and sweep maps over structures"],["Player tracking","Follow any target by nickname with internal radar"]]},
@@ -243,7 +247,7 @@ const products = [
    desc:"Krypton-grade client with a focused upgrade: a much more precise Sus Chunk ESP to find bases without tanking your frame rate.",
    tags:["Sus Chunk ESP","Lightweight","Free"],ver:"Fabric 1.21.11",det:"Free",bypass:"Free",
    features:[["Sus Chunk ESP","Improved version of Krypton's Sus Chunk"],["Lightweight","Low overhead, runs on modest PCs"],["Base hunting preset","Ready-to-use config for the server"],["Free","The whole package at zero cost"]]},
-  {name:"Corz Client",letter:"C",url:"https://donutfiles.com/",cat:"utility",status:"paid",price:"€ 19.99",kicker:"Client · Builder",
+  {name:"Corz Client",letter:"C",url:"https://www.corz.gg/",cat:"utility",status:"paid",price:"€ 19.99",kicker:"Client · Builder",
    desc:"The client with the most powerful auto schematic builder for DonutSMP: load a schema and the structure goes up block by block.",
    tags:["Auto schematic","Builder","Anti-AFK"],ver:"Fabric 1.21.11",det:"Lifetime license",bypass:"Free",
    features:[["Auto schematic builder","Automatic building from .schematic/.litematic files"],["Easy-place assist","Assisted placement against placement checks"],["Anti-AFK","Simulated movement during long sessions"],["Schema library","Ready-made bases and farm schematics included"]]}
@@ -255,7 +259,8 @@ const statusLabel = {free:"Free", paid:"Paid"};
 
 function render(filter){
   grid.innerHTML = "";
-  const list = products.filter(p => filter === "tutti" || p.cat === filter);
+  const s = document.getElementById("search").value.trim().toLowerCase();
+  const list = products.filter(p => (filter === "tutti" || p.cat === filter) && (s.length < 2 || p.name.toLowerCase().includes(s)));
   countEl.textContent = list.length;
   list.forEach((p, i) => {
     const el = document.createElement("button");
@@ -306,14 +311,14 @@ overlay.addEventListener("click", closeDetail);
 document.getElementById("closeBtn").addEventListener("click", closeDetail);
 document.addEventListener("keydown", e => { if(e.key === "Escape") closeDetail(); });
 
-document.getElementById("filters").addEventListener("click", e => {
-  const b = e.target.closest(".chip-btn");
-  if(!b) return;
-  document.querySelectorAll(".chip-btn").forEach(x => x.classList.remove("active"));
-  b.classList.add("active");
+document.getElementById("search").addEventListener("input", () => {
   grid.classList.add("swapping");
-  setTimeout(() => { render(b.dataset.f); grid.classList.remove("swapping"); }, 180);
+  setTimeout(() => { render(getActiveFilter()); grid.classList.remove("swapping"); }, 120);
 });
+
+function getActiveFilter(){
+  return document.querySelector(".chip-btn.active").dataset.f;
+}
 
 /* ---- dotted globe (canvas) ---- */
 (function(){
@@ -370,7 +375,7 @@ document.getElementById("filters").addEventListener("click", e => {
       const q = rot(pin);
       if(q.z <= 0.15) continue;
       const sx = cx + q.x*R, sy = cy + q.y*R;
-      if(Math.hypot(mx - sx, my - sy) < 16){ openDetail(pin.product); return; }
+      if(Math.hypot(mx - sx, my - sy) < 16){ window.open(pin.product.url, "_blank", "noopener"); return; }
     }
   });
 
