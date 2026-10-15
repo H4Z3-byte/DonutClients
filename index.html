@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DonutClients · DonutSMP Client Marketplace</title>
+<meta name="description" content="Marketplace of cheat clients, addons and tools for DonutSMP: base hunting, combat bypass, economy automation. Verified builds for Fabric 1.21.11." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=DM+Sans:opsz,wght@9..40,100..1000&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --background:#0b1118;--foreground:#f0f6fc;
+  --gold:#facc15;--gold-deep:#f59e0b;--gold-soft:#fde68a;--gold-dim:rgba(250,192,21,.14);
+  --panel-border:rgba(148,163,184,.24);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:#94a3b840;border-radius:9999px}
+::selection{background:var(--gold);color:#0b1118}
+html{font-family:"DM Sans",sans-serif;scroll-behavior:smooth}
+body{background:var(--background);color:var(--foreground);overflow-x:hidden}
+.font-heading{font-family:"Playfair Display",serif}
+.mono-label{font-family:"IBM Plex Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.25em;color:#94a3b8}
+.panel{border:1px solid var(--panel-border);background:rgba(4,8,14,.8);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 25px 50px -12px rgba(0,0,0,.7)}
+.hud-scroll::-webkit-scrollbar{width:6px}
+.hud-scroll::-webkit-scrollbar-thumb{background:#94a3b840;border-radius:9999px}
+
+@keyframes fade-up{0%{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fade-in{0%{opacity:0}to{opacity:1}}
+@keyframes hint-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.anim-fade-up{animation:.7s cubic-bezier(.2,.7,.2,1) both fade-up}
+.anim-fade-in{animation:.6s ease-out both fade-in}
+.anim-hint{animation:2.8s ease-in-out infinite hint-float}
+
+.stage{position:relative;min-height:100svh;width:100%;overflow:hidden;background:#070c12}
+.stage::after{content:"";position:absolute;inset:auto 0 0 0;height:220px;background:linear-gradient(to bottom,rgba(7,12,18,0),#0b1118);pointer-events:none;z-index:6}
+.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(2,6,12,.75) 100%);z-index:5}
+.glow{position:absolute;border-radius:9999px;filter:blur(90px);pointer-events:none}
+
+header.site{position:absolute;inset-inline:0;top:0;z-index:30;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:16px}
+.brand{display:flex;align-items:center;gap:.75rem}
+.brand-badge{display:flex;align-items:center;justify-content:center;height:40px;width:40px;border-radius:9999px;border:1px solid rgba(250,192,21,.4);background:rgba(4,8,14,.7);backdrop-filter:blur(8px)}
+.brand-title{font-family:"Playfair Display",serif;font-size:18px;line-height:1;color:#f8fafc}
+nav.top{display:flex;gap:.25rem;align-items:center}
+.nav-pill{border-radius:9999px;padding:4px 10px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--gold);background:transparent;border:0;cursor:pointer;transition:color .2s}
+.nav-pill:hover{color:var(--gold-soft)}
+.nav-pill:focus-visible{outline:2px solid var(--gold)}
+
+.btn{display:inline-flex;align-items:center;gap:.5rem;border-radius:.5rem;padding:10px 16px;font-size:14px;font-weight:500;cursor:pointer;border:0;font-family:"DM Sans",sans-serif;transition:background-color .2s,border-color .2s,color .2s,transform .2s;outline:0}
+.btn:active{transform:scale(.98)}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.btn-gold{background:var(--gold);color:#141003}
+.btn-gold:hover{background:var(--gold-soft)}
+.btn-ghost{border:1px solid rgba(148,163,184,.45);background:rgba(15,24,35,.6);color:#e2e8f0}
+.btn-ghost:hover{background:rgba(30,41,59,.8);color:#fff}
+
+.hero{position:relative;z-index:10;display:flex;flex-direction:column;justify-content:center;min-height:100svh;padding:96px 1.5rem 3rem;max-width:1200px;margin:0 auto}
+.hero h1{margin-top:.75rem;font-family:"Playfair Display",serif;font-size:clamp(2.6rem,7vw,5rem);font-weight:500;line-height:1.02;letter-spacing:-2px;color:#f8fafc}
+.hero h1 em{font-style:italic;color:var(--gold)}
+.lead{margin-top:1rem;max-width:30rem;font-size:15px;line-height:1.625;color:#cbd5e1}
+.hero-cta{margin-top:1.5rem;display:flex;flex-wrap:wrap;gap:.75rem}
+.hint{margin-top:1.5rem;color:#64748b}
+.hero-visual{position:relative;height:clamp(280px,42vw,420px);margin-top:2.5rem;cursor:grab;touch-action:none}
+.hero-visual:active{cursor:grabbing}
+.hero-visual canvas{position:absolute;inset:0;width:100%;height:100%}
+
+.wrap{max-width:1200px;margin:0 auto;padding:0 1.5rem 5rem}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.75rem}
+.section-head h2{font-family:"Playfair Display",serif;font-size:clamp(1.7rem,3.6vw,2.6rem);font-weight:500;letter-spacing:-.5px;color:#f8fafc}
+.filters{display:flex;gap:.4rem;flex-wrap:wrap}
+.chip-btn{border-radius:9999px;padding:5px 12px;font-family:"IBM Plex Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;cursor:pointer;border:1px solid rgba(148,163,184,.3);background:rgba(15,24,35,.6);color:#94a3b8;transition:border-color .25s,color .25s,background-color .25s}
+.chip-btn:hover{color:#e2e8f0;border-color:rgba(148,163,184,.55)}
+.chip-btn.active{border-color:rgba(250,192,21,.55);background:var(--gold-dim);color:var(--gold)}
+.chip-btn:focus-visible{outline:2px solid var(--gold)}
+
+.grid{display:grid;grid-template-columns:1fr;gap:1rem;transition:opacity .18s ease,transform .18s ease}
+.grid.swapping{opacity:0;transform:translateY(8px)}
+@media(min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.grid{grid-template-columns:repeat(3,1fr)}}
+.card{position:relative;border-radius:1rem;padding:1.25rem;cursor:pointer;text-align:left;color:inherit;font-family:inherit;background:rgba(4,8,14,.72);border:1px solid var(--panel-border);backdrop-filter:blur(14px);transition:border-color .25s,transform .25s,box-shadow .25s;outline:0}
+.card:hover,.card:focus-visible{border-color:rgba(250,192,21,.5);transform:translateY(-3px);box-shadow:0 18px 40px -18px rgba(250,192,21,.25)}
+.card-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.mono-icon{display:flex;align-items:center;justify-content:center;height:42px;width:42px;border-radius:.75rem;font-family:"Playfair Display",serif;font-size:20px;color:#141003;background:linear-gradient(135deg,var(--gold-soft),var(--gold-deep))}
+.badge{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border-radius:9999px;border:1px solid;transition:border-color .25s,background-color .25s,color .25s}
+.badge.free{border-color:rgba(52,211,153,.4);color:#6ee7b7;background:rgba(52,211,153,.08)}
+.badge.paid{border-color:rgba(250,192,21,.4);color:var(--gold);background:var(--gold-dim)}
+.card h3{margin-top:.85rem;font-family:"Playfair Display",serif;font-size:1.35rem;font-weight:500;color:#f8fafc}
+.card .kicker{margin-top:.2rem}
+.card p.desc{margin-top:.6rem;font-size:13.5px;line-height:1.55;color:#94a3b8;min-height:63px}
+.tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.75rem}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:.375rem;border:1px solid rgba(148,163,184,.25);color:#cbd5e1;background:rgba(30,41,59,.5)}
+.card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:.85rem;border-top:1px solid rgba(148,163,184,.16);transition:border-color .25s}
+.card:hover .card-foot{border-top-color:rgba(250,192,21,.35)}
+.price{font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:500;color:var(--gold)}
+.card-foot .go{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#64748b;transition:color .25s}
+.card:hover .go{color:var(--gold)}
+
+.overlay{position:fixed;inset:0;z-index:40;background:rgba(2,6,12,.6);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s}
+.overlay.open{opacity:1;pointer-events:auto}
+aside.detail{position:fixed;z-index:50;top:0;right:0;height:100dvh;width:min(420px,100vw);overflow-y:auto;padding:1.5rem;border-left:1px solid var(--panel-border);background:rgba(4,8,14,.94);backdrop-filter:blur(24px);transform:translateX(105%);transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+aside.detail.open{transform:none}
+.detail h3{font-family:"Playfair Display",serif;font-size:1.8rem;font-weight:500;color:#f8fafc}
+.detail .close{position:absolute;top:1rem;right:1rem;height:30px;width:30px;border-radius:.5rem;border:1px solid rgba(148,163,184,.3);background:rgba(30,41,59,.6);color:#cbd5e1;cursor:pointer;font-size:14px;transition:border-color .2s,color .2s}
+.detail .close:hover{border-color:rgba(250,192,21,.5);color:var(--gold)}
+.feature{border-radius:.75rem;border:1px solid rgba(148,163,184,.18);background:rgba(15,24,35,.5);padding:.75rem;margin-top:.5rem;transition:border-color .25s}
+.feature:hover{border-color:rgba(250,192,21,.35)}
+.feature b{display:block;font-size:13.5px;font-weight:500;color:#e2e8f0}
+.feature span{display:block;margin-top:.15rem;font-size:12px;color:#64748b}
+.spec{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(148,163,184,.14);font-size:12.5px}
+.spec dt{color:#64748b;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase}
+.spec dd{color:#e2e8f0}
+.status-dot{display:inline-block;height:7px;width:7px;border-radius:9999px;background:#34d399;margin-right:6px}
+
+footer{border-top:1px solid rgba(148,163,184,.14);padding:2rem 1.5rem;text-align:center}
+footer .mono-label{line-height:1.9}
+
+@media(max-width:639px){header.site{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<main class="stage">
+  <div class="glow" style="top:-140px;right:-120px;width:460px;height:460px;background:rgba(250,192,21,.10)"></div>
+  <div class="glow" style="bottom:-180px;left:-140px;width:520px;height:520px;background:rgba(245,158,11,.07)"></div>
+  <div class="vignette"></div>
+
+  <header class="site">
+    <div class="brand">
+      <div class="brand-badge">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="1.6">
+          <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2"/>
+          <circle cx="12" cy="4.2" r="1" fill="#facc15" stroke="none"/>
+          <circle cx="19.2" cy="15.5" r="1" fill="#facc15" stroke="none"/>
+          <circle cx="5.4" cy="16.4" r="1" fill="#facc15" stroke="none"/>
+        </svg>
+      </div>
+      <div>
+        <p class="brand-title">DonutClients</p>
+        <p class="mono-label" style="margin-top:4px">Market · DonutSMP</p>
+      </div>
+    </div>
+    <nav class="top">
+      <button class="nav-pill" onclick="document.getElementById('catalogo').scrollIntoView()">Catalog</button>
+      <a class="nav-pill" style="text-decoration:none" href="https://github.com/H4Z3-byte/DonutClients" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div style="max-width:44rem" class="anim-fade-up">
+      <p class="mono-label">2026 Catalog · Fabric 1.21.11</p>
+      <h1>Donut<em>Clients</em></h1>
+      <p class="lead">Base hunting, combat bypass, economy automation: every build in this catalog is tested against DonutSMP's live anti-cheat and updated to the current patch. Pick your tool, open the card, you're online in five minutes.</p>
+      <div class="hero-cta">
+        <button class="btn btn-gold" onclick="document.getElementById('catalogo').scrollIntoView()">
+          Browse clients
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+      <p class="mono-label hint anim-hint">Fabric 1.21.11 · Loader required · Instant download</p>
+    </div>
+
+    <div class="hero-visual anim-fade-in">
+      <canvas id="globe"></canvas>
+      <p class="mono-label" style="position:absolute;bottom:-8px;left:50%;transform:translateX(-50%)">Drag to rotate · click a pin</p>
+    </div>
+  </section>
+</main>
+
+<section id="catalogo" class="wrap" style="padding-top:4.5rem">
+  <div class="section-head">
+    <div>
+      <p class="mono-label">Collection · <span id="count">10</span> builds available</p>
+      <h2 style="margin-top:.4rem">The catalog</h2>
+    </div>
+    <div class="filters" id="filters">
+      <button class="chip-btn active" data-f="tutti">All</button>
+      <button class="chip-btn" data-f="combat">Combat</button>
+      <button class="chip-btn" data-f="base">Base hunting</button>
+      <button class="chip-btn" data-f="economy">Economy</button>
+      <button class="chip-btn" data-f="utility">Utility</button>
+    </div>
+  </div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<footer>
+  <p class="mono-label">DonutClients · independent marketplace · not affiliated with DonutSMP or Mojang</p>
+  <p class="mono-label">Use at your own risk · bans are on you</p>
+</footer>
+
+<div class="overlay" id="overlay"></div>
+<aside class="detail hud-scroll" id="detail" aria-hidden="true">
+  <button class="close" id="closeBtn" aria-label="Close">✕</button>
+  <p class="mono-label" id="dKicker">—</p>
+  <h3 id="dName" style="margin-top:.5rem">—</h3>
+  <p id="dDesc" style="margin-top:.75rem;font-size:14px;line-height:1.6;color:#cbd5e1"></p>
+  <p class="mono-label" style="margin-top:1.4rem">Key modules</p>
+  <div id="dFeatures" style="margin-top:.5rem"></div>
+  <p class="mono-label" style="margin-top:1.4rem">Tech sheet</p>
+  <dl id="dSpecs" style="margin-top:.5rem"></dl>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:1.5rem;gap:.75rem;flex-wrap:wrap">
+    <span class="price" id="dPrice" style="font-size:18px">—</span>
+    <a class="btn btn-gold" id="dLink" href="#" target="_blank" rel="noopener">Mod page ↗</a>
+  </div>
+</aside>
+
+<script>
+const products = [
+  {name:"Meteor Client",letter:"M",url:"https://modrinth.com/mod/meteor-client",cat:"utility",status:"free",price:"Free",kicker:"Client · Base platform",
+   desc:"The module system half the DonutSMP ecosystem runs on: 130+ modules, full HUD and a config layer. Required as the base for Glazed, Zinc and Bnana.",
+   tags:["130+ modules","Required base","Open source"],ver:"Fabric 26.2",det:"Free",bypass:"Neutral base",
+   features:[["Module system","130+ modules: combat, render, movement, world"],["Configurable HUD","Overlay and custom render plugins"],["Config layer","Saveable profiles and settings, addon API"],["Addon-ready","Unlocks Glazed, Zinc, Bnana, NuclearAddons"]]},
+  {name:"Glazed Addon",letter:"G",url:"https://donutfiles.com/",cat:"economy",status:"free",price:"Free",kicker:"Meteor addon · Economy",
+   desc:"DonutSMP-specific addon with 78 modules: AH Sniper, Storage Stealer and Crystal Macro among the community's most used.",
+   tags:["AH Sniper","Storage Stealer","78 modules"],ver:"Fabric 26.2",det:"Free",bypass:"Requires OPSEC",
+   features:[["AH Sniper","Automatic purchase of underpriced listings"],["Storage Stealer","Finds and empties containers in range"],["Crystal Macro","Automated crystal sequence"],["78 economy modules","Dupe-ready farms, heart swaps, server automations"]]},
+  {name:"Krypton Client",letter:"K",url:"https://donutclients.st/downloads",cat:"base",status:"paid",price:"€ 14.99",kicker:"Client · Standalone",
+   desc:"The most used standalone for base hunting on DonutSMP: 63+ modules with Sus Chunk, Freelook, Suspicious ESP and RTP BaseFinder.",
+   tags:["63+ modules","Sus Chunk","RTP BaseFinder"],ver:"Fabric 1.21.11",det:"Lifetime license",bypass:"Bypass active",
+   features:[["Sus Chunk","High player-activity chunks highlighted in real time"],["Freelook","Camera orbit without moving the player"],["Suspicious ESP","Tracks suspicious entities and containers"],["RTP BaseFinder","Guided RTP scans toward inhabited areas"]]},
+  {name:"Zinc Client",letter:"Z",url:"https://donutclients.st/downloads",cat:"economy",status:"free",price:"Free",kicker:"Meteor addon · Bypass",
+   desc:"The most installed Meteor addon in the DonutSMP community: 60+ modules built exclusively to evade the server anti-cheat.",
+   tags:["60+ modules","Anti-cheat","#1 community"],ver:"Fabric 26.2",det:"Free",bypass:"Bypass active",
+   features:[["Bypass suite","Packet-level rotations that slip past the checks"],["AutoSell","Automatic selling to the villager with guards"],["Auto-totem","Instant totem rearm"],["Packet guard","Filters packets that trigger flags"]]},
+  {name:"DoomsDay Client",letter:"D",url:"https://donutsmphack.com/",cat:"combat",status:"paid",price:"€ 24.99",kicker:"Client · All-rounder",
+   desc:"The do-everything client for DonutSMP and anarchy: SS bypass, crystal and classic PvP, base hunting and player tracking in one build.",
+   tags:["SS bypass","Crystal PvP","Tracking"],ver:"Fabric 1.21.11",det:"3 or 12 months",bypass:"Bypass active",
+   features:[["SS bypass","Evasion on sprint, velocity and reach checks"],["Crystal & classic PvP","Ready-made combat profiles for both styles"],["Base hunting","ESP and sweep maps over structures"],["Player tracking","Follow any target by nickname with internal radar"]]},
+  {name:"Vape V4",letter:"V",url:"https://vape.gg/",cat:"combat",status:"paid",price:"€ 34.99",kicker:"Client · Combat premium",
+   desc:"The reference for combat on servers with a serious anti-cheat: its bypass is still holding strong against any custom build.",
+   tags:["Combat premium","Long-lived bypass","Recoil control"],ver:"Multi-version",det:"Monthly or lifetime",bypass:"Bypass active",
+   features:[["Advanced KillAura","Humanized rotations and configurable CPS"],["Velocity control","Knockback reduction without flags"],["Reach & hitbox","Range extension tuned to dodge checks"],["Recoil control","Gun and bow recoil suppression"]]},
+  {name:"Krispyy Client",letter:"K",url:"https://voidclients.lovable.app/",cat:"base",status:"paid",price:"€ 9.99",kicker:"Client · Base hunting",
+   desc:"Specialized in finding hidden bases: chunk finder, advanced anchor cheats, auto-totem and high-performance ESP.",
+   tags:["Chunk finder","Anchor cheat","Auto-totem"],ver:"Fabric 1.21.11",det:"Lifetime license",bypass:"Bypass active",
+   features:[["Chunk finder","Scans chunks for construction signatures"],["Anchor cheat","Automated anchor explosions with perfect timing"],["Auto-totem","Instant swap with damage guard"],["High-perf ESP","Optimized rendering even at long distances"]]},
+  {name:"Gamble Rig Client",letter:"G",url:"https://voidclients.lovable.app/",cat:"economy",status:"paid",price:"€ 7.99 / wk",kicker:"Client · Gambling",
+   desc:"The cheapest way around the checks on DonutSMP's economy minigames: casino rig and automated payouts.",
+   tags:["Casino rig","Auto payout","Weekly"],ver:"Fabric 1.21.11",det:"Weekly / monthly",bypass:"Bypass active",
+   features:[["Casino rig","Predicts results on the internal games"],["Auto payout","Collects matured prizes automatically"],["Anti-flag","Play frequency modulated to avoid checks"],["Soft price","The cheapest bypass in the catalog, flexible renewal"]]},
+  {name:"Pedro Client",letter:"P",url:"https://donutfiles.com/",cat:"base",status:"free",price:"Free",kicker:"Client · Krypton-like",
+   desc:"Krypton-grade client with a focused upgrade: a much more precise Sus Chunk ESP to find bases without tanking your frame rate.",
+   tags:["Sus Chunk ESP","Lightweight","Free"],ver:"Fabric 1.21.11",det:"Free",bypass:"Free",
+   features:[["Sus Chunk ESP","Improved version of Krypton's Sus Chunk"],["Lightweight","Low overhead, runs on modest PCs"],["Base hunting preset","Ready-to-use config for the server"],["Free","The whole package at zero cost"]]},
+  {name:"Corz Client",letter:"C",url:"https://donutfiles.com/",cat:"utility",status:"paid",price:"€ 19.99",kicker:"Client · Builder",
+   desc:"The client with the most powerful auto schematic builder for DonutSMP: load a schema and the structure goes up block by block.",
+   tags:["Auto schematic","Builder","Anti-AFK"],ver:"Fabric 1.21.11",det:"Lifetime license",bypass:"Free",
+   features:[["Auto schematic builder","Automatic building from .schematic/.litematic files"],["Easy-place assist","Assisted placement against placement checks"],["Anti-AFK","Simulated movement during long sessions"],["Schema library","Ready-made bases and farm schematics included"]]}
+];
+
+const grid = document.getElementById("grid");
+const countEl = document.getElementById("count");
+const statusLabel = {free:"Free", paid:"Paid"};
+
+function render(filter){
+  grid.innerHTML = "";
+  const list = products.filter(p => filter === "tutti" || p.cat === filter);
+  countEl.textContent = list.length;
+  list.forEach((p, i) => {
+    const el = document.createElement("button");
+    el.className = "card anim-fade-up";
+    el.style.animationDelay = (i * 55) + "ms";
+    el.innerHTML = `
+      <div class="card-top">
+        <div class="mono-icon">${p.letter}</div>
+        <span class="badge ${p.status}">${statusLabel[p.status]}</span>
+      </div>
+      <h3>${p.name}</h3>
+      <p class="mono-label kicker">${p.kicker}</p>
+      <p class="desc">${p.desc}</p>
+      <div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+      <div class="card-foot">
+        <span class="price">${p.price}</span>
+        <span class="go">Details →</span>
+      </div>`;
+    el.addEventListener("click", () => openDetail(p));
+    grid.appendChild(el);
+  });
+}
+
+const overlay = document.getElementById("overlay");
+const detail = document.getElementById("detail");
+function openDetail(p){
+  document.getElementById("dKicker").textContent = p.kicker;
+  document.getElementById("dName").textContent = p.name;
+  document.getElementById("dDesc").textContent = p.desc;
+  document.getElementById("dPrice").textContent = p.price;
+  document.getElementById("dLink").href = p.url;
+  document.getElementById("dFeatures").innerHTML = p.features
+    .map(f => `<div class="feature"><b>${f[0]}</b><span>${f[1]}</span></div>`).join("");
+  document.getElementById("dSpecs").innerHTML = `
+    <div class="spec"><dt>Version</dt><dd>${p.ver}</dd></div>
+    <div class="spec"><dt>License</dt><dd>${p.det}</dd></div>
+    <div class="spec"><dt>Anti-cheat</dt><dd><span class="status-dot"></span>${p.bypass}</dd></div>`;
+  overlay.classList.add("open");
+  detail.classList.add("open");
+  detail.setAttribute("aria-hidden","false");
+}
+function closeDetail(){
+  overlay.classList.remove("open");
+  detail.classList.remove("open");
+  detail.setAttribute("aria-hidden","true");
+}
+overlay.addEventListener("click", closeDetail);
+document.getElementById("closeBtn").addEventListener("click", closeDetail);
+document.addEventListener("keydown", e => { if(e.key === "Escape") closeDetail(); });
+
+document.getElementById("filters").addEventListener("click", e => {
+  const b = e.target.closest(".chip-btn");
+  if(!b) return;
+  document.querySelectorAll(".chip-btn").forEach(x => x.classList.remove("active"));
+  b.classList.add("active");
+  grid.classList.add("swapping");
+  setTimeout(() => { render(b.dataset.f); grid.classList.remove("swapping"); }, 180);
+});
+
+/* ---- dotted globe (canvas) ---- */
+(function(){
+  const cv = document.getElementById("globe");
+  const ctx = cv.getContext("2d");
+  let W=0, H=0, R=0, cx=0, cy=0;
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+  const pts = [];
+  const N = 900;
+  for(let i=0;i<N;i++){
+    const y = 1 - (i/(N-1))*2;
+    const r = Math.sqrt(1-y*y);
+    const th = i * Math.PI * (3 - Math.sqrt(5));
+    pts.push({x:Math.cos(th)*r, y:y, z:Math.sin(th)*r});
+  }
+  const pins = products.map((p, i) => {
+    const y = 1 - ((i + 0.5) / products.length) * 2;
+    const rr = Math.sqrt(1 - y * y);
+    const th = i * Math.PI * (3 - Math.sqrt(5)) * 1.7;
+    return {x:Math.cos(th)*rr, y:y, z:Math.sin(th)*rr, label:(p.name.replace(/ (Client|Addon)$/,"") + " · " + p.cat).toUpperCase(), product:p};
+  });
+  const stars = Array.from({length:70}, () => ({x:Math.random(), y:Math.random(), a:Math.random()*0.4+0.1}));
+
+  let ry = 0.6, rx = -0.35, vy = 0.0035, drag = false, moved = 0, px = 0, py = 0;
+
+  function resize(){
+    const rect = cv.parentElement.getBoundingClientRect();
+    W = rect.width; H = rect.height;
+    cv.width = W*DPR; cv.height = H*DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    R = Math.min(W, H)*0.36;
+    cx = W/2; cy = H/2;
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  cv.addEventListener("pointerdown", e => { drag = true; moved = 0; px = e.clientX; py = e.clientY; cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener("pointermove", e => {
+    if(!drag) return;
+    moved += Math.abs(e.clientX - px) + Math.abs(e.clientY - py);
+    vy = (e.clientX - px)*0.0004 + 0.001;
+    ry += (e.clientX - px)*0.006;
+    rx = Math.max(-0.9, Math.min(0.9, rx + (e.clientY - py)*0.004));
+    px = e.clientX; py = e.clientY;
+  });
+  cv.addEventListener("pointerup", () => drag = false);
+  cv.addEventListener("pointercancel", () => drag = false);
+  cv.addEventListener("click", e => {
+    if(moved > 6) return;
+    const rect = cv.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    for(const pin of pins){
+      const q = rot(pin);
+      if(q.z <= 0.15) continue;
+      const sx = cx + q.x*R, sy = cy + q.y*R;
+      if(Math.hypot(mx - sx, my - sy) < 16){ openDetail(pin.product); return; }
+    }
+  });
+
+  function rot(p){
+    const cyr = Math.cos(ry), syr = Math.sin(ry);
+    const cxr = Math.cos(rx), sxr = Math.sin(rx);
+    const x1 = p.x*cyr + p.z*syr;
+    const z1 = -p.x*syr + p.z*cyr;
+    const y2 = p.y*cxr - z1*sxr;
+    const z2 = p.y*sxr + z1*cxr;
+    return {x:x1, y:y2, z:z2};
+  }
+
+  let t = 0;
+  function frame(){
+    t += 0.016;
+    if(!drag){ vy += (0.0035 - vy)*0.02; ry += vy; }
+    ctx.clearRect(0,0,W,H);
+
+    ctx.fillStyle = "rgba(148,163,184,.5)";
+    for(const s of stars){
+      ctx.globalAlpha = s.a * (0.6 + 0.4*Math.sin(t*1.3 + s.x*20));
+      ctx.fillRect(s.x*W, s.y*H, 1, 1);
+    }
+    ctx.globalAlpha = 1;
+
+    const g = ctx.createRadialGradient(cx - R*0.3, cy - R*0.3, R*0.1, cx, cy, R*1.15);
+    g.addColorStop(0, "rgba(250,192,21,.10)");
+    g.addColorStop(1, "rgba(250,192,21,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx, cy, R*1.15, 0, Math.PI*2); ctx.fill();
+
+    for(const p of pts){
+      const q = rot(p);
+      const sx = cx + q.x*R, sy = cy + q.y*R;
+      const front = q.z > 0;
+      const depth = (q.z + 1)/2;
+      ctx.globalAlpha = front ? 0.25 + depth*0.65 : 0.10;
+      ctx.fillStyle = front ? "#facc15" : "#475569";
+      const size = front ? 0.9 + depth*1.5 : 0.9;
+      ctx.beginPath(); ctx.arc(sx, sy, size, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    for(const pin of pins){
+      const q = rot(pin);
+      const sx = cx + q.x*R, sy = cy + q.y*R;
+      const front = q.z > 0.15;
+      if(!front) continue;
+      const pulse = (Math.sin(t*2.6 + pin.x*5) + 1)/2;
+      ctx.strokeStyle = "rgba(250,192,21," + (0.5*(1-pulse)) + ")";
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(sx, sy, 4 + pulse*10, 0, Math.PI*2); ctx.stroke();
+      ctx.fillStyle = "#fde68a";
+      ctx.beginPath(); ctx.arc(sx, sy, 2.6, 0, Math.PI*2); ctx.fill();
+      ctx.font = "9px 'IBM Plex Mono', monospace";
+      ctx.fillStyle = "rgba(253,230,138," + (0.4 + q.z*0.6) + ")";
+      ctx.fillText(pin.label, sx + 12, sy + 3);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+render("tutti");
+</script>
+</body>
+</html>
